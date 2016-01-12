@@ -45,9 +45,10 @@ if __name__ == '__main__':
 	text = scrape_site(url)
 	df = build_dataframe(text)
 	ser = make_timeseries(df)
-	with open('data/new_pdo.pkl', 'w') as f:
+	with open('pickle_data/pdo_monthly.pkl', 'w') as f:
 		pickle.dump(ser, f)
-
+	ser.to_csv('csv_data/pdo_monthly.csv')
+	
 ## OLD CODE:
 # ser_index = ser.index.labels
 # mask = (test.index.month <= 9) & (test.index.month >= 5)

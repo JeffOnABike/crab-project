@@ -1,0 +1,24 @@
+Crab project methods:
+
+overall data (or subset of port):
+	
+group by month.. get the mean of each
+assign these to seasonal components.
+
+deseasonalize the overall data
+
+get the trend from a regression (might be nothing?)
+
+get the cyclical component by performing moving average
+
+article:
+http://www.santacruzsentinel.com/article/NE/20151105/NEWS/151109814
+
+paper:
+http://www.santacruzsentinel.com/article/NE/20151105/NEWS/151109814
+
+http://wattsupwiththat.com/2009/04/28/misunderstandings-about-the-pacific-decadal-oscillation/
+
+http://www.nwfsc.noaa.gov/research/divisions/fe/estuarine/oeip/ca-pdo.cfm
+
+Several independent studies find evidence for just two full PDO cycles in the past century: "cool" PDO regimes prevailed from 1890-1924 and again from 1947-1976, while "warm" PDO regimes dominated from 1925-1946 and from 1977 through (at least) the mid-1990'
