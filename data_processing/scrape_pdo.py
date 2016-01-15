@@ -48,11 +48,3 @@ if __name__ == '__main__':
 	with open('pickle_data/pdo_monthly.pkl', 'w') as f:
 		pickle.dump(ser, f)
 	ser.to_csv('csv_data/pdo_monthly.csv')
-	
-## OLD CODE:
-# ser_index = ser.index.labels
-# mask = (test.index.month <= 9) & (test.index.month >= 5)
-# seasonal_sums =test_subset.groupby(test_subset.index.year).sum()
-
-# #recreate:
-# http://www.nwfsc.noaa.gov/research/divisions/fe/estuarine/oeip/ca-pdo.cfm

@@ -52,18 +52,13 @@ def combine_all_data(early_data, later_data):
 	cutoff_date = later_data.index[0] - 1
 	all_data = pd.concat([early_data[:cutoff_date], later_data], axis = 0)
 	all_data.drop('All', axis = 1, inplace = True)
-		# make new column identifying season Nov - Oct by year that Nov was in
-	# season = all_data.index.year
-	# season -= (all_data.index.month <= 10)
-	# all_data['Season'] = season
-	# # check amount of seasons:
-	# # all_data.Season.value_counts()
+
 	return all_data
 
 if __name__ == '__main__':
 	early_years = clean_early_data()
-	# now get later data
 	later_years = combine_later_records()
+	# all_years_monthly has uniquely identified ports as cols
 	all_years_monthly = combine_all_data(early_years, later_years)
 	all_years_monthly.to_csv('csv_data/ports_monthly.csv')
 	with open('pickle_data/ports_monthly.pkl', 'w') as f:

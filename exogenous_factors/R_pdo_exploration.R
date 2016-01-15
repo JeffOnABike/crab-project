@@ -1,29 +1,30 @@
 # pdo exploration in R
 library(astsa)
-#library(stats)
+library(stats)
 
-pdo_resampled <- read.csv('../csv_data/pdo_resampled.csv', header = FALSE)
-pdo_resampled_start = c(1900)
-pdo_resampled_end = c(2016)
-pdo_resampled_data <- pdo_resampled[2]
-pdo_resampled_ts <- ts(pdo_resampled_data, start = pdo_resampled_start, end = pdo_resampled_end)
-pdo_resampled_ts
+# Load pdo resampled by season
+pdo_resampled <- read.csv('csv_data/pdo_resampled.csv', header = FALSE)
+pdo_years = pdo_resampled$V1
+pdo_data = pdo_resampled$V2
+pdo_start <- pdo_years[1]
+pdo_end <- pdo_years[length(pdo_years)]
+pdo_ts <- ts(pdo_data, start = pdo_start, end = pdo_end, frequency = 1)
 
+# Load all port areas summarized by season
+areas_seasonal <- read.csv('csv_data/areas_seasonal.csv', header = TRUE)
+eureka_data <- areas_seasonal$Eureka
+eureka_years <- areas_seasonal$Season
+eureka_start <- eureka_years[1]
+eureka_end <- eureka_years[length(eureka_years)]
+eureka_ts <- ts(eureka_data, start = eureka_start, end = eureka_end, frequency = 1)
 
-areas_seasonal <- read.csv('../csv_data/areas_seasonal.csv', header = TRUE)
-areas_seasonal_start = c(1927)
-areas_seasonal_end = c(2014)
-areas_seasonal_years <- areas_seasonal[1]
-eureka_seasonal <- areas_seasonal[2]
-eureka_seasonal_ts <- ts(eureka_seasonal, start = areas_seasonal_start, end = areas_seasonal_end)
-
-window_start = max(pdo_resampled_start, areas_seasonal_start)
-window_end = min(pdo_resampled_end, areas_seasonal_end)
-
-
-eureka = window(eureka_seasonal_ts, start = window_start, end = window_end)
-pdo = window(pdo_resampled_ts, start = window_start, end = window_end)
+# align eureka and upwell timeseries to start and end on same season
+window_start = max(pdo_resampled_start, eureka_start)
+window_end = min(pdo_resampled_end, eureka_end)
+pdo <- window(pdo_ts, start = window_start, end = window_end)
+eureka <- window(eureka_ts, start = window_start, end = window_end)
 
 # want to save this!
-ccf(c(pdo), c(eureka))
+par(mfrow = c(1,1))
+ccf(c(pdo), c(eureka), main = "Cross Correlation: PDO(lagged) vs. Eureka")
 lag2.plot(c(pdo), c(eureka), max.lag = 5, smooth = TRUE)

@@ -1,5 +1,4 @@
 library(shiny)
-
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
         
@@ -9,17 +8,21 @@ shinyUI(fluidPage(
         # Sidebar with a slider input for the number of bins
         sidebarLayout(
                 sidebarPanel(
-                        sliderInput("Season",
-                                    "Choose A Season to Predict:",
-                                    min = 1949,
+                        selectInput(inputId = 'PortArea', label = 'pick', choices = c('Eureka')),
+                        sliderInput(inputId = "Season",
+                                    label = "Browse Predictions by Season:",
+                                    min = 1965,
                                     max = 2015,
-                                    value = 1965),
-                        'Put the Bar Graph Here of latest Prediction'
+                                    value = 1965,
+                                    animate = TRUE,
+                                    format = "####"),
+                        plotOutput(outputId = "barPlot") 
+                        
                 ),
                 
                 # Show a plot of the generated distribution
-                mainPanel('Put the time series plot here'
-                        #plotOutput("distPlot")
+                mainPanel(
+                        plotOutput(outputId = "tsPlot")
                 )
         )
 ))
