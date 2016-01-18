@@ -90,7 +90,9 @@ for (end_yr in 1964:2013) {
         
         # Smoothing models (m6, m7)
         #TSLM?
-        HWmodel <- HoltWinters(land_train, beta = FALSE, gamma = FALSE)
+        
+        #HWmodel <- HoltWinters(land_train, gamma = FALSE)
+        base_arima = auto.arima(land_train, trace = TRUE, ic ='aicc', test = 'adf')
         ETSmodel <- ets(land_train, opt.crit = 'mae', ic = 'aicc')
         
         # Kinda dumb models:
@@ -112,7 +114,8 @@ for (end_yr in 1964:2013) {
         arima_001_mean.forecast = forecast.Arima(arima_001_mean, xreg = exogenous_test, h = 1)$mean[1]
         lin_ex2.forecast = max(lin_ex2$coefficients[1] + lin_ex2$coefficients[2]*exogenous_test$pdo + lin_ex2$coefficients[3]*exogenous_test$upwell)
         # other models
-        HWmodel.forecast = predict(HWmodel)[1]
+        #HWmodel.forecast = predict(HWmodel)[1]
+        base_arima.forecast = forecast.Arima(base_arima)$mean[1]
         ETSmodel.forecast =  predict(ETSmodel)$mean[1]
         arima_100_mean.forecast = forecast.Arima(arima_100_mean, h = 1)$mean[1]
         last_value = tail(land_train, n = 1)[1]
@@ -141,7 +144,7 @@ for (end_yr in 1964:2013) {
         m3_pred_vec = c(m3_pred_vec, arima_ex2_bic.forecast)
         m4_pred_vec = c(m4_pred_vec, arima_001_mean.forecast)
         m5_pred_vec = c(m5_pred_vec, lin_ex2.forecast)
-        m6_pred_vec = c(m6_pred_vec, HWmodel.forecast)
+        m6_pred_vec = c(m6_pred_vec, base_arima.forecast)
         m7_pred_vec = c(m7_pred_vec, ETSmodel.forecast)
         m8_pred_vec = c(m8_pred_vec, arima_100_mean.forecast)
         m9_pred_vec = c(m9_pred_vec, last_value)
@@ -153,7 +156,7 @@ for (end_yr in 1964:2013) {
         MAE3_vec = c(MAE3_vec, mean(abs(arima_ex2_bic$residuals))) 
         MAE4_vec = c(MAE4_vec, mean(abs(arima_001_mean$residuals)))
         MAE5_vec = c(MAE5_vec, mean(abs(lin_ex2$resid)))
-        MAE6_vec = c(MAE6_vec, 10)
+        MAE6_vec = c(MAE6_vec, mean(abs(base_arima$residuals)))
         MAE7_vec = c(MAE7_vec, mean(abs(ETSmodel$residuals)))
         MAE8_vec = c(MAE8_vec, mean(abs(arima_100_mean$residuals)))
         MAE9_vec = c(MAE9_vec, mean(abs(diff(land_train))))
@@ -192,37 +195,48 @@ t.test(abs(m0_pred_vec-real_vec), abs(m1_pred_vec-real_vec), alternative = 'grea
 
 summary(arima_ex2_aicc)
 confint(arima_ex2_aicc)
-ts.plot(arima_ex2_aicc$residuals, type = 'p')
-acf(arima_ex2_aicc$residuals)
+ts.plot(arima_ex2_aicc$residuals, type = 'p', main = 'In-sample Residuals', xlab = 'Season', ylab = '(millions lbs)')
+acf(arima_ex2_aicc$residuals, main = 'Auto Correlation of In-Sample Residuals')
 
 #check on non-zero coefficients for auto-regressive in residuals:
-Box.test(arima_ex2_aic$residuals, lag=18, type="Ljung-Box")
+Box.test(arima_ex2_aic$residuals, lag=20, type="Ljung-Box")
 
 
 # look at error vec:
-acf(real_vec - m1_pred_vec)
-Box.test(real_vec - m1_pred_vec)
+errors = real_vec - m1_pred_vec
+ts.plot(ts(errors, start = year_vec[1]), type = 'p', main = 'Out of Sample Residuals', ylab = '(million lbs.)')
+acf(errors, main = 'Auto Correlation of ARIMA w/ex OOS Errors')
+Box.test(errors, type="Ljung-Box")
 
 #jarque.bera.test(arima1$residuals)
 
 ## GRAPH!
 # the good:
+ylab = 'Landings (million lbs.)'
+xlab = 'Season'
+main = 'Model Predictions vs. Actual'
+model = 'ARIMA w/ex'
 real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-ts.plot(real_ts, type = 'l', col = 1)
+ts.plot(real_ts, type = 'l', col = 1, main = main, xlab = xlab , ylab = ylab)
 pred_ts = ts(m1_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-lines(pred_ts, type = 'l', col = 2)
+lines(pred_ts, type = 'l', col = 'red')
+legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
 
-# the bad:
+model = 'OLS'
 real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-ts.plot(real_ts, type = 'l', col = 1)
-pred_ts = ts(m8_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-lines(pred_ts, type = 'l', col = 2)
+ts.plot(real_ts, type = 'l', col = 1, main = main, xlab = xlab , ylab = ylab)
+pred_ts = ts(m5_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
+lines(pred_ts, type = 'l', col = 'red')
+legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
 
-#the ugly:
+model = 'ARIMA'
 real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-ts.plot(real_ts, type = 'l', col = 1)
-pred_ts = ts(m7_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
-lines(pred_ts, type = 'l', col = 2)
+ts.plot(real_ts, type = 'l', col = 1, main = main, xlab = xlab , ylab = ylab)
+pred_ts = ts(m6_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
+lines(pred_ts, type = 'l', col = 'red')
+legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
+
+
 
 #interesting side point:
 real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))

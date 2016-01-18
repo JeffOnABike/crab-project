@@ -10,8 +10,8 @@ run from crab-project directory, not from within this directory!
 
 def stacked_bar(areas_seasonal, ports_seasonal):
 	areas_seasonal.plot(kind = 'bar', stacked = True, figsize = (14,8))
-	plt.suptitle('Seasonal Landings by Port Area')
-	plt.ylabel('Millions of Pounds')
+	plt.title('Seasonal Landings by Port Area', {'fontsize': 24})
+	plt.ylabel('Millions of Pounds', {'fontsize': 16})
 	plt.savefig('images/stacked_bar.png')
 	plt.show()
 	plt.clf()
@@ -19,15 +19,17 @@ def stacked_bar(areas_seasonal, ports_seasonal):
 
 def eureka_bar(areas_seasonal, ports_seasonal):
 	# just Eureka!
-	ax = areas_seasonal['Eureka'].plot(kind = 'bar', figsize = (14,8))
-	plt.ylim((0,30))
-	#ax.vlines(x = 1945, ymin = 0, ymax = 30, color = 'r', l)
+	areas_seasonal['Eureka'].plot(kind = 'bar', figsize = (14,8))
+	plt.ylim((0,35))
+	plt.title('Seasonal Landings in Eureka Area', {'fontsize': 24})
+	plt.ylabel('Millions of Pounds', {'fontsize': 16})
+	plt.savefig('images/eureka_bar.png')
 	plt.show()
 	return None
 
 def histogram_all_ports(areas_seasonal, ports_seasonal):
 	## HISTOGRAM 
-	areas_seasonal_tots = areas_seasonal.ix[1945:].sum(axis = 1)
+	areas_seasonal_tots = areas_seasonal.sum(axis = 1)
 	areas_seasonal_tots.hist(bins = range(0, 33))
 	plt.suptitle('Histogram of Seasonal Landings')
 	plt.xlabel('Millions of Pounds')
@@ -37,7 +39,7 @@ def histogram_all_ports(areas_seasonal, ports_seasonal):
 
 def areas_proportion_plot(areas_seasonal, ports_seasonal, areas_seasonal_tots):
 	## AREA PLOT OF PROPORTIONS BY SEASON
-	areas_seasonal = areas_seasonal.ix[1945:].copy()
+	areas_seasonal = areas_seasonal.copy()
 	normed_areas_seasonal = 100.0 * (areas_seasonal.T/areas_seasonal_tots).T
 	normed_areas_seasonal.plot(kind = 'area')
 	plt.suptitle('Percentage of CA landings by Port Area')
@@ -51,6 +53,8 @@ def areas_boxplot(areas_seasonal, ports_seasonal):
 	# boxplot port areas
 	N_to_S = ['Eureka', 'San Francisco', 'Monterey', 'Santa Barbara']
 	sns.boxplot(areas_seasonal.ix[1945:], order = N_to_S)
+	plt.title('Seasonal Landings by Port Area', {'fontsize': 16})
+	plt.ylabel('Millions of lbs.')
 	plt.show()
 	return None
 
@@ -59,7 +63,7 @@ def ports_boxplot(areas_seasonal, ports_seasonal):
 	unwanted_ports = {'Los Angeles', 'San Diego'}
 	N_to_S = ['Crescent City', 'Trinidad', 'Eureka', 'Fort Bragg', 'Bodega Bay', 'San Francisco', 'Halfmoon Bay', 'Monterey', 'Morro Bay', 'Santa Barbara', 'Los Angeles', 'San Diego']
 	plt.xticks(rotation=45)
-	sns.boxplot(ports_seasonal.ix[1945:], order = N_to_S) #figsize = (12,8)
+	sns.boxplot(ports_seasonal, order = N_to_S) #figsize = (12,8)
 	plt.title('Landings Variability by Port')
 	plt.xlabel('Ports listed Northernmost to Southernmost')
 	plt.ylabel('Millions of Pounds Landed per Season')
@@ -87,6 +91,9 @@ if __name__ == '__main__':
 	with open('pickle_data/ports_seasonal.pkl', 'r') as f:
 		ports_seasonal = pickle.load(f)
 
+	beginning_year = 1945
+	areas_seasonal = areas_seasonal.ix[beginning_year:]
+	ports_seasonal = ports_seasonal.ix[beginning_year:]
 	stacked_bar(areas_seasonal, ports_seasonal)	
 	eureka_bar(areas_seasonal, ports_seasonal)
 	areas_seasonal_tots = histogram_all_ports(areas_seasonal, ports_seasonal)

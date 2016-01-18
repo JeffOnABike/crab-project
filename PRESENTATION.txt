@@ -1,0 +1,56 @@
+PRESENTATION
+
+
+CONTEXT
+
+1. Opening slide... 
+Hi my name is Jeff and my data science project is on Predicting Dungeness Crab Landings in CA.
+What is meant by landings? Simply how much legal crab was commercially caught and brought to port. (Data on the total landings by port and month have been collected and recorded for about a century. )
+
+2. Stacked bar
+Here's an overview of the landings in millions of pounds, aggregated by season and by port area... (Quick note: seasons are identified by the year in which they open, which is traditionally in November.) Notice that the Eureka area is not only historically providing the lion's share of dungeness landings, but also has the highest variation.
+
+3. Eureka alone
+This is where I focussed my efforts for the project.
+
+
+thecalifornian "Scientists worry about Dungeness crab fishery"
+http://www.thecalifornian.com/story/money/2014/11/13/scientists-worry-dungeness-crab-fishery/19000171/
+
+PROCESS
+
+4. some web stuff
+The process started with lots of research and data collection from multiple resources. (I don't come from an biology or earth sciences background, so I read a lot and learned what I could from industry experts on the subject, which gave me great insights on where to start.)
+I scraped the web for montly oceanographic data that had the most promise. When I began exploring it in pandas, I came across a couple really valuable findings for building my model:
+
+5. pdo line graph lagged
+The first was that the pacific decadal oscillation - a generalized measure of temperature - had a statistically significant negative correlation to landings in eureka 4 years later. Check out how the seasons of high landings have a large negative PDO when this shift is made. I found this by iterively resampling a year of PDO measurements every month going back 72 months prior to the target season and choosing the time window that had the highest negative correlation with the target. 
+
+(6. histogram of hot/cold
+this simplifies the relationship a little bit: the samplings where PDO was negative or 'cold' has a significantly different distribution of landings 4 years later than when it was positive or 'hot')
+
+7. Upwelling CCF?
+The second major factor is something called the Upwelling Index. I used the same process and found a really surprising positive correlation between the Upwelling Index measured closest to Eureka and the landings in Eureka 3 years later.
+
+8. Modeling
+Now I had some pretty promising predictive factors, so I switched to modeling using R.I built 10 different models in 3 main flavors: ARIMA, linear regression, and exponential smoothing. 
+
+9. Visual of constant origin??
+To evaluate the models, I used Leave-One-Out crossvalidation from a constant origin of 1949 (this was the first year I could get upwelling for). The model trains up to the year before the test year, predicts it, and then each subsequent validation adds one year to the training window, predicts next as the test, and so on.
+
+RESULTS
+10. Table of test results
+The metric I used to compare the model predictions was simple mean absolute error. The best model for predicting was an ARIMA model with both the lagged PDO and upwelling as exogenous regressors. This outperforms both the linear regression with the same regressors, as well as a plain vanilla ARIMA, 
+
+(The exponential smoothing essentially always guesses this year for next year, and a rolling mean always guesses the cumulative mean.)
+
+RsquaresD?D?
+
+11. Here's a quick look at the snapshot of the model produced from the final iteration of training. The in sample residuals are randomly distributed between and there's no significant auto-correlations among them.
+
+12. The out of sample residuals collected form the test validation doesn't look quite as good, with a couple major under-predictions in the 70s, but there was no evidence of non-normality in the 
+
+13. Here is the overlay of all out of sample predictions with the actual observations.
+
+NEXT STEPS:
+look for more exogenous factors like spring transition, look for local-specific
