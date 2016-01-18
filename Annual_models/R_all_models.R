@@ -218,7 +218,7 @@ main = 'Model Predictions vs. Actual'
 model = 'ARIMA w/ex'
 real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
 ts.plot(real_ts, type = 'l', col = 1, main = main, xlab = xlab , ylab = ylab)
-pred_ts = ts(m1_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
+pred_ts = ts(m1_pred_vec, start = year_vec[1] ) #,end=tail(year_vec, n = 1)
 lines(pred_ts, type = 'l', col = 'red')
 legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
 
@@ -236,6 +236,14 @@ pred_ts = ts(m6_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
 lines(pred_ts, type = 'l', col = 'red')
 legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
 
+model = 'Naive'
+real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
+ts.plot(real_ts, type = 'l', col = 1, main = main, xlab = xlab , ylab = ylab)
+pred_ts = ts(m0_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
+lines(pred_ts, type = 'l', col = 'red')
+legend('topright', c('Actual', model), lty = c(1,1), col = c(1,'red'))
+
+
 
 
 #interesting side point:
@@ -243,13 +251,5 @@ real_ts = ts(real_vec, start = year_vec[1], end=tail(year_vec, n = 1))
 ts.plot(real_ts, type = 'l', col = 1)
 pred_ts = ts(m4_pred_vec, start = year_vec[1], end=tail(year_vec, n = 1))
 lines(pred_ts, type = 'l', col = 2)
-
-
-
-
-
-
-
-
 
 

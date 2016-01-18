@@ -1,6 +1,6 @@
 #OVERVIEW
 
-The goal of my project was to predict the commercial catch of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by ports between Fort Bragg and the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable seasonal fluctuations. 
+The goal of my project was to predict the commercial catch of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by port from Fort Bragg northward to the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable seasonal fluctuations. 
 
 To address this uncertainty, I created a predictive model that estimates landings in this crucial region a year ahead of time. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings are reasonable considering that this variety of crab is known to become of commercially legal size at age 3-4.
 
@@ -31,8 +31,6 @@ One can reason that these a negative PDO and a high upwelling index are highly f
 
 With these potentially predictive factors, I modeled in R studio, largely using the forecast package. I pitted together traditionally successful time series models of the following flavors:
 
-ARIMA, Exponential Smoothing, Linear Regression
-
 ###ARIMA
 The best performing ARIMA model was developed using the auto.Arima function in R's forecast package. This function was most helpful because it automatically performs the Box-Jenkins method of fitting the best p,d,q parameters of the general ARIMA model to each of the 50 training sets. I enabled the auto.Arima function to integrate training data if it didn't initially pass the Augmented Dickey Fuller test for non-stationarity. That being said, differencing was not necessary on the vast majority of training sets (especially once training sets were > 20 years). All fits were chosen based on minimizing the corrected Akiake information criterion (AICc), a common recommendation for finite time series samples such as these. All training fits of the model also incorportated the exogenous regressors of PDO and upwelling (resampled & lagged optimally), a non-zero mean, and almost all had either 1 or 2 significant moving average terms with statistically significant coefficients.
 
@@ -42,7 +40,7 @@ The other models were simpler to investigate, as they had far fewer options for 
 
 ###Exponential smoothing
  
-ETS: I fit models with the ets function from R's forecast package.  I suppressed the gamma parameter to overlook any perceived seasonality. The exponential smoothing models were interesting to investigate as they consistently were fit with alpha parameters extremely close to 1 and near-zero beta parameters. This communicated to me that this variety of model wasn't returning anything really sophisticated: It was essentially predicting this year's landings for next year. That being said, it did not perform too badly in testing!
+I fit models with the ets function from R's forecast package.  I suppressed the gamma parameter to overlook any perceived seasonality. The exponential smoothing models were interesting to investigate as they consistently were fit with alpha parameters extremely close to 1 and near-zero beta parameters. This communicated to me that this variety of model wasn't returning anything really sophisticated: It was essentially predicting this year's landings for next year. That being said, it did not perform too badly in testing!
 
 ###Linear Regression
 
@@ -55,10 +53,10 @@ Intercept only: This is the baseline 'dumb' model which always predicts the cumu
 
 To see how models would have performed over the dataset, I used leave-one-out cross validation, training models from an constant origin of 1949 and testing each year from 1965 to 2014 (last season). This backtesting technique was selected because the objective was to find a model that captures the long term fluctuations of landings over several decades. (Experimenting with rolling origin training led to highly overfit models that had poor out-of-sample prediction accuracy.) 1949 served as the origin as it is the first year for which resampled upwelling index measurements were available.
 
-Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year.
+Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year. As a reference, this is how one iteration of the testing occurred:
 ![image](images/1971.png)
 
-I used mean absolute error as the metric for comparing out-of-sample prediction values because of its simplicity and interpretability in the context of this problem.
+I used mean absolute error from actual landings as the metric for comparing out-of-sample predictions because of its simplicity and interpretability in the context of this problem.
 
 In addition to choosing a model that minimized out-of-sample error, it was also important to make sure that the model was consistent in its errors. I performed diagnostics on the model residuals, both in and out of sample, to confirm that they were normally distributed and did not show evidence of non-zero autocorrelation using the Box-Ljung test.
 
@@ -66,7 +64,7 @@ In addition to choosing a model that minimized out-of-sample error, it was also 
 
 ![image](images/Best_model_info.png)
 
-This is the model fit that we have predicting for the 2015 season, which is yet to open (it traditionally opens November, but had been delayed because of a public health risk related to a harmful algal bloom.)  That being said, it is predicting an uptick from last year's low-landing season in the Eureka area, and overall an above-average year with a point forecast of 9.38 Mlbs. The standard error on the forecast is 3.73 Mlbs.
+This is the model fit that we have predicting for the 2015 season, which is yet to open (it traditionally opens November, but had been delayed because of a public health risk related to a harmful algal bloom.)  That being said, it is predicting an uptick from last year's low-landing (3.51 Mlbs.) season in the Eureka area, and overall an above-average year with a point forecast of 9.04 Mlbs. The standard error on the forecast is 3.73 Mlbs.
 
 ##Conclusions
 
@@ -151,6 +149,14 @@ Again, all the transformation are already written to csv for the modeling portio
 To see model generation, selection and final model performance:
 1. all_models.R
 2. best_model.R
+	* Model training fit standard error over time
+	* Histogram of out-of-sample forecast errors
+	* Plot of in and out of sample residuals
+	* ACF of in and out of sample residuals
+	* Box-Ljung test results for out of sample residuals: p = 0.30
+	* R^2: 0.38
+	* MAE out of sample residuals: 3.45
+	* Plot: Model predictions vs. Actual including 2015 prediction 
 
 It may be necessary to install the following packages:
 ```
@@ -159,16 +165,16 @@ forecast
 ```
 
 ###THANK YOU!
-*Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
-*Tammy Lee - Director, Galvanize
-*Clayton Schupp -  Director, Galvanize
-*Adam, Scott - Commercial Fishermen, CA & OR
-*Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
+	*Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
+	*Tammy Lee - Director, Galvanize
+	*Clayton Schupp -  Director, Galvanize
+	*Adam, Scott - Commercial Fishermen, CA & OR
+	*Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
 
 ###IN CASE YOU WERE WONDERING:
 
 1. Landing data were subset from 1945 to present. Prior to WWII, crab pots weren't universally used, so seasonal landings were minimal in CA and largely unrepresentative of trends in the "crab pot era". 
-2. The dungeness crab fishery is considered to be consistently ~90% exploited. For this reason, landings are also a great proxy for population assessment.
+2. The Dungeness crab fishery is considered to be consistently ~90% exploited. For this reason, landings are also a great proxy for population assessment.
 3. Dungeness crab have been regulated by size, sex, and season consistently for more than a century. Because of this, mating success is not considered to be affected by the high exploitation rate.
 4. Non-commercial a.k.a. recreational fishing is believed to be ~1% of the total state landings and are untracked.
-5. Dungeness crab health aren't affected by domoic acid, only the animals that eat them!
+5. Dungeness crab health aren't affected by the harmful algal blooms - only the animals that eat them!
