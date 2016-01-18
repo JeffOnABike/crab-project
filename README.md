@@ -4,9 +4,8 @@ The goal of my project was to predict the commercial catch of Dungeness Crab in 
 
 To address this uncertainty, I created a predictive model that estimates landings in the Northern California region a year ahead of time. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings are reasonable considering that this variety of crab is known to become of commercially legal size at age 3-4.
 
-My results were encouraging, as the best model shows not only increased predictive power over alternative models, but is also consistently robust across the testing window of the past 50 years. I gauged performance with out-of-sample simple mean absolute error, and summarize the results of testing of considered models below:
-
-Comparing the model to a naive model such as the 'rolling mean' predictor was essential in justifying that a significant findings were found. The MAE of the residuals was decreased from 4.5 to 3.45, representing an overall reduction of uncertainty in forecasting.  Here is a comparison of out-of-sample model predictions overlaid the actual landings for those years for the best model.
+My results were encouraging, as the best model shows not only increased predictive power over alternative models, but is also consistently robust across the testing window of the past 50 years. 
+Comparing the model to a naive model such as the 'rolling mean' predictor was essential in justifying that a significant findings were found. Using leave-one-out cross validation across the entirety of the testing window, the MAE of the residuals was decreased from 4.5 to 3.45, representing an overall reduction of uncertainty in forecasting.  Here is a comparison of out-of-sample model predictions overlaid the actual landings for those years for the best model.
 
 ![image](images/ArimaExPreds.png)
 
@@ -14,7 +13,7 @@ Comparing the model to a naive model such as the 'rolling mean' predictor was es
 
 My process started with initially coming up with a really dumb 'naive' model to serve as benchmark for a truly predictive model to beat. A "rolling mean" model predicts the average of all observations seen, and proves to be very stable and has an MAE of 4.5 Mlbs. {image}
 
-![image](images/MeanModel.png)
+![image](images/MeanModel.pdf)
 
 Designing a model that could consistently outpredict a naive one was an exploration into time series analysis as well as the realm of marine biology and environmental sciences. I scraped websites with oceanographic measures which have been shown to influence marine wildlife and the abundance of fisheries on the Pacific coast. The most useful among these were the Pacific Decadal Osciallation and Upwelling Index at 42nd latitude (closest to the Eureka port area).
 
