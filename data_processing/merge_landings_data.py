@@ -1,3 +1,7 @@
+'''
+merge_landings_data.py reads the respective csv and excel files in the raw_data folder representing different time windows of landings data (1927-2002 and 2002-2014 respectively), and merges them as one dataframe and writes them to pickle and csv objects 'ports_monthly'
+'''
+
 import pandas as pd
 import cPickle as pickle
 
@@ -58,8 +62,10 @@ def combine_all_data(early_data, later_data):
 if __name__ == '__main__':
 	early_years = clean_early_data()
 	later_years = combine_later_records()
-	# all_years_monthly has uniquely identified ports as cols
+	# N.B. : all_years_monthly has uniquely identified ports as cols
 	all_years_monthly = combine_all_data(early_years, later_years)
-	all_years_monthly.to_csv('csv_data/ports_monthly.csv')
-	with open('pickle_data/ports_monthly.pkl', 'w') as f:
-		pickle.dump(all_years_monthly, f)
+	write = False
+	if write: 
+		all_years_monthly.to_csv('csv_data/ports_monthly.csv')
+		with open('pickle_data/ports_monthly.pkl', 'w') as f:
+			pickle.dump(all_years_monthly, f)

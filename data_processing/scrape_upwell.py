@@ -71,4 +71,4 @@ def main(write_to_csv = True, pickle_it = True):
 
 
 if __name__ == '__main__':
-	upwell_df = main(write_to_csv = True, pickle_it = True)
+	upwell_df = main(write_to_csv = False, pickle_it = False)

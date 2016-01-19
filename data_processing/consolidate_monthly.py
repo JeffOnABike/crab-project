@@ -1,14 +1,13 @@
+'''
+Consolidates ports_monthly data to the recognized port areas, and drops the unwanted ports of San Diego and Los Angeles, which have no impact on the study.
+Additionally, if indicated to write, the data are aggregated by fishing season (Nov - Jul identified by the season in which the November is), and written to file as 'ports_seasonal' and 'areas_seasonal' (changed to millions of lbs.)
+'''
+
 import numpy as np
 import pandas as pd
 import cPickle as pickle
 
 
-port_area = { 'Eureka': ['Crescent City', 'Trinidad', 'Eureka', 'Fort Bragg'], \
-			'San Francisco': ['Bodega Bay', 'San Francisco', 'Halfmoon Bay'], \
-			'Santa Barbara': ['Morro Bay', 'Santa Barbara'], \
-			'Monterey': ['Monterey']
-}
-unwanted_ports = {'Los Angeles', 'San Diego'}	
 
 def reconcile_ports(all_landings):
 	'''
@@ -36,6 +35,18 @@ def add_season_col(monthly_data):
 	return None
 
 def write_seasonally_grouped(ports_monthly, areas_monthly):
+	'''
+	Adds a season column according to the season in which the record of data opened, then groups by that season, divides the total by 1 million and writes the data to files:
+			ports_seasonal.csv, ports_seasonal.pkl
+			areas_seasonal.csv, areas_seasonal.pkl
+
+	Input:
+	ports_monthly: pandas DataFrame - monthly period-indexed dataframe by port
+	areas_monthly: pandas DataFrame - monthly period-indexed dataframe by port area
+	
+	Output:
+	None
+	'''
 	add_season_col(areas_monthly)
 	add_season_col(ports_monthly)
 
@@ -58,6 +69,14 @@ if __name__ == '__main__':
 	with open('pickle_data/ports_monthly.pkl', 'r') as f:
 		ports_monthly = pickle.load(f)
 
+	# define port areas and unwanted ports
+	port_area = { 'Eureka': ['Crescent City', 'Trinidad', 'Eureka', 'Fort Bragg'],\
+				'San Francisco': ['Bodega Bay', 'San Francisco', 'Halfmoon Bay'],\
+				'Santa Barbara': ['Morro Bay', 'Santa Barbara'],\
+				'Monterey': ['Monterey']
+	}
+	unwanted_ports = {'Los Angeles', 'San Diego'}	
+
 	# reduce unique ports to port areas other than unwanted ports
 	areas_monthly = reconcile_ports(ports_monthly)
 
@@ -69,8 +88,3 @@ if __name__ == '__main__':
 			pickle.dump(areas_monthly, f)
 		write_seasonally_grouped(ports_monthly, areas_monthly)
 
-
-
-
-	# plot_all_years_one_col(areas_monthly, port = None)
-	# make_monthly_boxplot(areas_monthly, port = 'All')

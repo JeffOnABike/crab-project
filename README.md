@@ -1,8 +1,8 @@
 #OVERVIEW
 
-The goal of my project was to predict the commercial catch of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by port from Fort Bragg northward to the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable seasonal fluctuations. 
+The goal of my project was to predict the commercial catch of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by port from Fort Bragg northward to the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable year-over-year fluctuations. 
 
-To address this uncertainty, I created a predictive model that estimates landings in this crucial region a year ahead of time. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings are reasonable considering that this variety of crab is known to become of commercially legal size at age 3-4.
+To address this uncertainty, I created a predictive model that estimates landings in this crucial region before the season opens. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings are reasonable considering that this variety of crab is known to become of commercially legal size at age 3-4.
 
 My results were encouraging, as the best model shows not only increased predictive power over alternative models, but is also consistently robust across the testing window of the past 50 years. 
 Comparing the model to a naive model such as the 'rolling mean' predictor was essential in justifying that a significant findings were found. Using leave-one-out cross validation across the entirety of the testing window, the MAE of the residuals was decreased from 4.5 in the naive model to 3.45 in the best model, representing an overall reduction of uncertainty in forecasting.  Here is a comparison of out-of-sample model predictions overlaid the actual landings for those years for the best model.
@@ -25,11 +25,11 @@ A visualization of the negative correlation found between resampled and lagged (
 Upwelling Index measurements were also cross-correlated in a similar manner, and peak correlation was found when resampled from APR 3 years prior. Observe the correlations between landings and resampled & lagged upwelling (in upper right of subplots) peak at 3 years then fall again in the lagplot:
 ![image](images/LagPlot_Upwell_Eureka.png)
 
-One can reason that these a negative PDO and a high upwelling index are highly favorable for Dungeness crab population success in the larval to early juvenile phases, thus resulting in higher landings in the season 3-4 years later.
+One can reason that a negative PDO and a high upwelling index are highly favorable for Dungeness crab population success in their early development phases, thus resulting in higher landings in the season 3-4 years later.
 
 ## Modeling Techniques
 
-With these potentially predictive factors, I modeled in R studio, largely using the forecast package. I pitted together traditionally successful time series models of the following flavors:
+With these potentially predictive factors, I modeled in R studio, largely using the forecast package. I pitted together traditionally successful time series models of three main flavors.
 
 ###ARIMA
 The best performing ARIMA model was developed using the auto.Arima function in R's forecast package. This function was most helpful because it automatically performs the Box-Jenkins method of fitting the best p,d,q parameters of the general ARIMA model to each of the 50 training sets. I enabled the auto.Arima function to integrate training data if it didn't initially pass the Augmented Dickey Fuller test for non-stationarity. That being said, differencing was not necessary on the vast majority of training sets (especially once training sets were > 20 years). All fits were chosen based on minimizing the corrected Akiake information criterion (AICc), a common recommendation for finite time series samples such as these. All training fits of the model also incorportated the exogenous regressors of PDO and upwelling (resampled & lagged optimally), a non-zero mean, and almost all had either 1 or 2 significant moving average terms with statistically significant coefficients.
@@ -53,7 +53,7 @@ Intercept only: This is the baseline 'dumb' model which always predicts the cumu
 
 To see how models would have performed over the dataset, I used leave-one-out cross validation, training models from an constant origin of 1949 and testing each year from 1965 to 2014 (last season). This backtesting technique was selected because the objective was to find a model that captures the long term fluctuations of landings over several decades. (Experimenting with rolling origin training led to highly overfit models that had poor out-of-sample prediction accuracy.) 1949 served as the origin as it is the first year for which resampled upwelling index measurements were available.
 
-Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year. As a reference, this is how one iteration of the testing occurred:
+Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year. The following figure demonstrates one iteration of the testing in 1971:
 ![image](images/1971.png)
 
 I used mean absolute error from actual landings as the metric for comparing out-of-sample predictions because of its simplicity and interpretability in the context of this problem.
@@ -73,45 +73,45 @@ Variance in observed landings in the Eureka area can be partially explained by a
 #REPO GUIDE
 
 ###raw_data:
-*Dcrab_Month&Port_2002-2015.xlsx
+* Dcrab_Month&Port_2002-2015.xlsx
 Excel file with landings organized by port and month from 2002-2014. This data was generously provided by the California Department of Fish and Wildlife, who have been tracking landings since 2002.
 
-*erdCAMarCatSM_fb3f_4d76_6e3d.csv  
+* erdCAMarCatSM_fb3f_4d76_6e3d.csv  
 CSV file downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.csv?time,year,fish,port,landings&time%3E=1928-01-16&time%3C=2002-12-16T00:00:00Z&fish=%22Crab,%20Dungeness%22, http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html), who has landings by port area from 1927-2002. 
 
 ###data_processing:
-*merge_landings.py: 
+* merge_landings.py: 
 reads all the landings data from the raw_data files and merges them into one pandas dataframe, period-indexed by month and year, for the identified port. It should be noted that when recording agencies changed, so did the conventions for identifying port areas
 
-*consolidate_monthly.py
+* consolidate_monthly.py
 Consolidates all monthly data into the 4 generalized port areas that have been consistently labeled over the past century: Eureka, San Francisco, Monterey, Santa Barbara. The script also aggregates by season which is assigned as the year it opens (traditionally in November).
 
-*scrape_pdo.py
-Scrapes and pickles/writes to csv the PDO measurements provided by ______.
-***this has one of the most instrumental scripts in "crosscorrelate_pdo" and "lag _samples" working in conjunction***
+* scrape_pdo.py
+Scrapes and pickles/writes to csv the PDO measurements provided by [JISAO](http://research.jisao.washington.edu/pdo/PDO.latest).
 
 
-*scrape_upwell.py:
-Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from _____.
+* scrape_upwell.py:
+Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from [NOAA data](http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upindex.mon).
 
 ## pickle data
 ## csv data
 
 ##data_exploration:
 
-*eda_seasonal.py:
+* eda_seasonal.py:
 explores and visualizes trends in the landings data aggregated by season.
 
-*pdo_exploration.py:
+* pdo_exploration.py:
+explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
+***this has one of the most instrumental scripts in "crosscorrelate_pdo" and "lag _samples" working in conjunction***
+
+* pdo_exploration.R
 explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
 
-*pdo_exploration.R
-explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
-
-*upwell_exploration.py:
+* upwell_exploration.py:
 explores and visualizes cross correlation of upwelling index (at 42nd latitude) resamplings with the landings in Eureka. 
 
-*upwell_exploration.R
+* upwell_exploration.R
 explores and visualizes cross correlation of upwelling resamplings (at 42nd latitude) with the landings in Eureka. 
 
 ##images
@@ -120,10 +120,10 @@ explores and visualizes cross correlation of upwelling resamplings (at 42nd lati
 
 ##modeling
 
-*all_models.R:
+* all_models.R:
 pits together 10 different varieties of time series models in an R script and compares resulting performance 
 
-*best_model.R:
+* best_model.R:
 performs predictions for test set + 2015 season prediction
 
 ###REPRODUCE THE RESULTS:
@@ -165,11 +165,11 @@ forecast
 ```
 
 ###THANK YOU!
-	*Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
-	*Tammy Lee - Director, Galvanize
-	*Clayton Schupp -  Director, Galvanize
-	*Adam, Scott - Commercial Fishermen, CA & OR
-	*Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
+	* Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
+	* Tammy Lee - Director, Galvanize
+	* Clayton Schupp -  Director, Galvanize
+	* Adam, Scott - Commercial Fishermen, CA & OR
+	* Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
 
 ###IN CASE YOU WERE WONDERING:
 

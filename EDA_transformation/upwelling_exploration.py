@@ -10,7 +10,14 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 
-
+def plot_stuff(seasonal, port, upwell_annual, lag_years, new_df):
+		seasonal[port].ix[1945:].plot(label = 'landings at %s' % port)
+		(upwell_annual.ix[1945:]/100.).plot(label = 'upwell lagged by %d years' % lag_years)
+		plt.legend()
+		plt.show()
+		new_df.plot(kind = 'scatter', x = 'upwell', y = port)
+		plt.show()
+		return None
 
 def lag_samples(seasonal, port, upwell_monthly, month, lag_years, plot = True, return_df = False):
 	# try mean and sum
@@ -19,10 +26,7 @@ def lag_samples(seasonal, port, upwell_monthly, month, lag_years, plot = True, r
 	upwell_annual.index += lag_years
 
 	if plot:
-		seasonal[port].ix[1945:].plot(label = 'landings at %s' % port)
-		(upwell_annual.ix[1945:]/100.).plot(label = 'upwell lagged by %d years' % lag_years)
-		plt.legend()
-		plt.show()
+		pass
 
 	df_p = pd.DataFrame(upwell_annual)
 	df_s = pd.DataFrame(seasonal[port])
@@ -31,8 +35,7 @@ def lag_samples(seasonal, port, upwell_monthly, month, lag_years, plot = True, r
 
 
 	if plot:
-		new_df.plot(kind = 'scatter', x = 'upwell', y = port)
-		plt.show()
+		plot_stuff(seasonal, port, upwell_annual, lag_years, new_df)
 
 	if return_df:
 		return new_df.ix[1945:]
@@ -52,6 +55,14 @@ def cross_corr(upwell_monthly, port):
 				corr = lag_samples(seasonal, port, upwell_monthly, month, lag_years, plot = False)
 				results.append([lag_years, month, port, corr])
 	df_results = pd.DataFrame(results, columns = ['lag_years', 'resample month', 'port area', 'corr']).sort_values(by = 'corr')
+
+	print
+	print 'Highest Magnitude negative correlations:'
+	print df_results.head(5)
+	print
+	print 'Highest Magnitude positive correlations:'
+	print df_results[::-1].head(5)
+	
 	return df_results
 
 def lmodel_plot(upwell_resampled, port_area):
