@@ -11,7 +11,9 @@ import scipy.stats as scs
 
 def plot_hot_cold_hist(new_df, port, savefig = False):
 	'''
-	Divides seasonal landings into classes of hot seasons (+PDO) and cold seasons (-PDO) at time of resample. Also prints a p-value from a 2 sample t-test between the hot and cold groups.
+	Divides seasonal landings into classes of hot seasons (+PDO) and cold seasons 
+	(-PDO) at time of resample. Also prints a p-value from a 2 sample t-test 
+	between the hot and cold groups.
 
 	INPUT: 
 	new_df: integer-indexed pandas DataFrame 
@@ -75,7 +77,8 @@ def plot_landings_vs_lagged(seasonal, port, pdo_annual, lag_years, savefig = Fal
 
 def plot_lmodel_predictions(new_df, port_area):
 	'''
-	Plots linear model based on a realigned DataFrame with pdo as the regressor and landings as the response. Also returns a model summary for inspection.
+	Plots linear model based on a realigned DataFrame with pdo as the regressor and 
+	landings as the response. Also returns a model summary for inspection.
 
 	INPUT:
 	new_df: integer-indexed pandas DataFrame 
@@ -99,7 +102,9 @@ def plot_lmodel_predictions(new_df, port_area):
 
 def lag_samples(seasonal, port, pdo, month, lag_years, plot = True, return_df = False):
 	'''
-	Lags the pdo variable annually sampling and lagging it lag_years, then aligns it with landings as new_df. Returns the new_df for 1945 onward if desired, otherwise returns the correlation of this aligned new_df
+	Lags the pdo variable annually sampling and lagging it lag_years, then aligns 
+	it with landings as new_df. Returns the new_df for 1945 onward if desired, 
+	otherwise returns the correlation of this aligned new_df
 
 	INPUT:
 	seasonal: integer-indexed pandas DataFrame 
@@ -135,7 +140,9 @@ def lag_samples(seasonal, port, pdo, month, lag_years, plot = True, return_df = 
 # Grid search for best correlations:
 def crosscorrelate_pdo_seasonal(pdo_monthly, seasonal, return_df = False):
 	'''
-	Cross-correlates pdo resampled with annual frequency across all months, going from present back to 6 years, grid-searching for a highest magnitude correlations. Returns best correlations as a dataframe if desired.
+	Cross-correlates pdo resampled with annual frequency across all months, going 
+	from present back to 6 years, grid-searching for a highest magnitude 
+	correlations. Returns best correlations as a dataframe if desired.
 
 	INPUT: 
 	pdo_monthly: period-indexed (monthly) pandas Series 
@@ -146,13 +153,15 @@ def crosscorrelate_pdo_seasonal(pdo_monthly, seasonal, return_df = False):
 	df_results: pandas Dataframe
 	
 	'''
-	months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+	months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', \
+	'OCT', 'NOV', 'DEC']
 
 	results=[]
 	for lag_years in range(0,6):
 		for month in months:
 			for port in seasonal:
-				corr = lag_samples(seasonal, port, pdo_monthly, month, lag_years, plot = False)
+				corr = lag_samples(seasonal, port, pdo_monthly, month, lag_years, \
+					plot = False)
 				results.append([lag_years, month, port, corr])
 	columns = ['lag_years', 'resample month', 'port area', 'corr']
 	df_results = pd.DataFrame(results, columns = columns)
@@ -171,7 +180,8 @@ def crosscorrelate_pdo_seasonal(pdo_monthly, seasonal, return_df = False):
 
 def write_pdo_resampled(pdo_monthly):
 	'''
-	Writes the optimally resampled and lagged pdo measurements to csv and pickle based on cross-correlation results.
+	Writes the optimally resampled and lagged pdo measurements to csv and pickle 
+	based on cross-correlation results.
 
 	INPUT: 
 	pdo_monthly - period-indexed pandas DataFrame
@@ -195,7 +205,8 @@ def write_pdo_resampled(pdo_monthly):
 
 def work_the_magic(pdo_monthly, areas_seasonal, port_area = 'Eureka', write = False):
 	'''
-	Calls all functions of this file in succession to explore the best alignment of lagging/resampling PDO writes resampled and lagged pdo if indicated.
+	Calls all functions of this file in succession to explore the best alignment of 
+	lagging/resampling PDO writes resampled and lagged pdo if indicated.
 
 	INPUT: 
 	pdo_monthly: period-indexed pandas Series
@@ -203,11 +214,13 @@ def work_the_magic(pdo_monthly, areas_seasonal, port_area = 'Eureka', write = Fa
 	port_area: string
 	write: boolean
 	'''
-	cross_cors = crosscorrelate_pdo_seasonal(pdo_monthly, areas_seasonal, return_df = True)
+	cross_cors = crosscorrelate_pdo_seasonal(pdo_monthly, areas_seasonal, \
+		return_df = True)
 	top_result = cross_cors[cross_cors['port area'] == port_area].iloc[0]
 	optimal_month = top_result['resample month']
 	optimal_year = top_result['lag_years']
-	new_df = lag_samples(areas_seasonal, port_area, pdo_monthly, optimal_month, optimal_year, return_df = True)
+	new_df = lag_samples(areas_seasonal, port_area, pdo_monthly, optimal_month, \
+		optimal_year, return_df = True)
 	plot_lmodel_predictions(new_df, port_area)
 	if write:
 		write_pdo_resampled(pdo_monthly)

@@ -1,6 +1,9 @@
 '''
-Consolidates ports_monthly data to the recognized port areas, and drops the unwanted ports of San Diego and Los Angeles, which have no impact on the study.
-Additionally, if indicated to write, the data are aggregated by fishing season (Nov - Jul identified by the season in which the November is), and written to file as 'ports_seasonal' and 'areas_seasonal' (changed to millions of lbs.)
+Consolidates ports_monthly data to the recognized port areas, and drops the unwanted
+ports of San Diego and Los Angeles, which have no impact on the study.
+Additionally, if indicated to write, the data are aggregated by fishing season (Nov -
+Jul identified by the season in which the November is), and written to file as 
+'ports_seasonal' and 'areas_seasonal' (changed to millions of lbs.)
 '''
 
 import numpy as np
@@ -36,7 +39,9 @@ def add_season_col(monthly_data):
 
 def write_seasonally_grouped(ports_monthly, areas_monthly):
 	'''
-	Adds a season column according to the season in which the record of data opened, then groups by that season, divides the total by 1 million and writes the data to files:
+	Adds a season column according to the season in which the record of data opened,
+	then groups by that season, divides the total by 1 million and writes the data 
+	to files:
 			ports_seasonal.csv, ports_seasonal.pkl
 			areas_seasonal.csv, areas_seasonal.pkl
 
