@@ -188,13 +188,9 @@ Uses upwell_resampled.csv data to explore and visualize cross correlation and la
 
 ##modeling
 
-1. all_models.R
+*all_models.R*: Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
 
-Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
-
-2. best_model.R
-
-Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
+*best_model.R*: Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
 *** This script is the ONLY one that produces a 2015 season prediction!***
 
 ###REPRODUCE THE RESULTS:
