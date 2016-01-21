@@ -1,11 +1,11 @@
 #OVERVIEW
 
-The goal of my project was to predict the commercial catch of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by port from Fort Bragg northward to the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable year-over-year fluctuations. 
+The goal of my project was to predict the commercial catch (aka 'landings') of Dungeness Crab in the Northern California Eureka area. The Eureka area (defined by port from Fort Bragg northward to the Oregon border) historically has contributed about 3/4 of all Dungeness for the state, but has also experienced dramatic and unpredictable year-over-year fluctuations. 
 
-To address this uncertainty, I created a predictive model that estimates landings in this crucial region before the season opens. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings are reasonable considering that this variety of crab is known to become of commercially legal size at age 3-4.
+To address this uncertainty, I created a predictive model that estimates landings in this crucial region before the season opens. The best-performing model incorporates data of landings from previous seasons as well as relevant exogenous environmental factors sampled from 3-4 years prior to the target prediction year. These findings suggest favorable factors to early development of this crab since it typically grows to legal size and is harvested at age 3-4.
 
 My results were encouraging, as the best model shows not only increased predictive power over alternative models, but is also consistently robust across the testing window of the past 50 years. 
-Comparing the model to a naive model such as the 'rolling mean' predictor was essential in justifying that a significant findings were found. Using leave-one-out cross validation across the entirety of the testing window, the MAE of the residuals was decreased from 4.5 in the naive model to 3.45 in the best model, representing an overall reduction of uncertainty in forecasting.  Here is a comparison of out-of-sample model predictions overlaid the actual landings for those years for the best model.
+Comparing the model to a naive model such as the 'rolling mean' predictor was essential in justifying that a significant findings were found. Using leave-one-out cross validation across the entirety of the testing window, the MAE of the residuals was decreased from 4.5 in the naive model to 3.45 in the best model, representing an overall reduction of uncertainty in forecasting.  Here is a comparison of out-of-sample model predictions overlaid the actual landings for those years for the selected ARIMAX model.
 
 ![image](images/ArimaExPreds.png)
 
@@ -53,7 +53,7 @@ Intercept only: This is the baseline 'dumb' model which always predicts the cumu
 
 To see how models would have performed over the dataset, I used leave-one-out cross validation, training models from an constant origin of 1949 and testing each year from 1965 to 2014 (last season). This backtesting technique was selected because the objective was to find a model that captures the long term fluctuations of landings over several decades. (Experimenting with rolling origin training led to highly overfit models that had poor out-of-sample prediction accuracy.) 1949 served as the origin as it is the first year for which resampled upwelling index measurements were available.
 
-Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year. The following figure demonstrates one iteration of the testing in 1971:
+Each of the 50 years in the test set was predicted with each model after they were fit to the window of training years preceding the test season. Because of the 3-4 year lag in exogenous regressors, their values were always able to be fed into the forecast function for at least the proceeding year. The following figure demonstrates one iteration of the testing in 1972:
 ![image](images/1971.png)
 
 I used mean absolute error from actual landings as the metric for comparing out-of-sample predictions because of its simplicity and interpretability in the context of this problem.
@@ -74,57 +74,127 @@ Variance in observed landings in the Eureka area can be partially explained by a
 
 ###raw_data:
 * Dcrab_Month&Port_2002-2015.xlsx
-Excel file with landings organized by port and month from 2002-2014. This data was generously provided by the California Department of Fish and Wildlife, who have been tracking landings since 2002.
+
+Excel file with landings organized by port and month from 2002-2014. This data was generously provided by Christy Juhasz of the California Department of Fish and Wildlife, who have been tracking landings since 2002.
 
 * erdCAMarCatSM_fb3f_4d76_6e3d.csv  
-CSV file downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.csv?time,year,fish,port,landings&time%3E=1928-01-16&time%3C=2002-12-16T00:00:00Z&fish=%22Crab,%20Dungeness%22, http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html), who has landings by port area from 1927-2002. 
+
+CSV file of landings from 1928 - 2002, downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html) with the query: Fish = 'Crab, Dungeness', and Time: '1928-01-16' - '2002-12-16T00:00:00Z', and Download as: '.csv'.
+It can also be viewed as [html](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.htmlTable?time,year,fish,port,landings&time%3E=1928-01-16&time%3C=2002-12-16T00:00:00Z&fish=%22Crab,%20Dungeness%22). 
 
 ###data_processing:
-* merge_landings.py: 
-reads all the landings data from the raw_data files and merges them into one pandas dataframe, period-indexed by month and year, for the identified port. It should be noted that when recording agencies changed, so did the conventions for identifying port areas
+
+* merge_landings.py
+
+Reads the respective csv and excel files in the raw_data folder representing different time windows of landings data (1927-2002 and 2002-2014 respectively), and merges them as one dataframe 'ports_monthly' and writes them to pickle and csv objects in the pickle_data and csv_data files, respectively:
+
+ * ports_monthly.pkl
+ * ports_monthly.csv
 
 * consolidate_monthly.py
-Consolidates all monthly data into the 4 generalized port areas that have been consistently labeled over the past century: Eureka, San Francisco, Monterey, Santa Barbara. The script also aggregates by season which is assigned as the year it opens (traditionally in November).
+
+Consolidates all monthly data from 'ports_monthly.pkl' into the 4 generalized port areas that have been consistently labeled over the past century: Eureka, San Francisco, Monterey, Santa Barbara (and drops ports Los Angeles and San Diego whihc have no bearing on this study). The script also aggregates by season which is assigned as the year it opens (traditionally in November). It writes these aggregated dataframes to csv_data and pickle_data as:
+
+1. ports_seasonal.csv
+2. areas_seasonal.csv
+3. ports_seasonal.pkl
+4. areas_seasonal.pkl
 
 * scrape_pdo.py
-Scrapes and pickles/writes to csv the PDO measurements provided by [JISAO](http://research.jisao.washington.edu/pdo/PDO.latest).
 
+Scrapes and pickles/writes to csv the PDO measurements provided by [JISAO](http://research.jisao.washington.edu/pdo/PDO.latest). Outputs to pickle_data and csv_data:
 
-* scrape_upwell.py:
-Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from [NOAA data](http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upindex.mon).
+1. pdo_monthly.pkl
+2. pdo_monthly.csv
+
+* scrape_upwell.py
+
+Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from [NOAA data](http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upindex.mon). Outputs to pickle_data and csv_data:
+
+1. upwell_monthly.pkl
+2. upwell_monthly.csv
 
 ## pickle data
 ## csv data
 
-##data_exploration:
+##EDA_transformation:
 
-* eda_seasonal.py:
-explores and visualizes trends in the landings data aggregated by season.
+* eda_seasonal.py
 
-* pdo_exploration.py:
-explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
-***this has one of the most instrumental scripts in "crosscorrelate_pdo" and "lag _samples" working in conjunction***
+Explores and visualizes trends in the landings data aggregated by season for 1945 on ('the crab pot era'). Creates the following visualizations in the plot window/outputs to the images folder:
+
+1. stacked_bar.png - Aggregated landings plotted by fishing season and port area
+2. eureka_line.png - Aggregated landings plotted by fishing season for Eureka port area alone
+3. Histogram of all season landings totals in total across all ports
+4. Area plot of seasonal proportions by port area
+5. areas_boxplot.png - Distribution of seasonal landings by port area
+
+* pdo_exploration.py
+
+Explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
+***this has one of the most instrumental functions in "crosscorrelate_pdo_seasonal" and "lag _samples" working in conjunction.*** Outputs the resampled pdo from OCT start month to csv_data and pickle_data:
+
+1. pdo_resampled.csv
+2. pdo_resampled.pkl
+3. pdo_resampled_lag4.csv
+4. pdo_resampled_lag4.pkl
+
+* upwell_exploration.py
+
+Explores and visualizes cross correlation of upwelling (at 42nd parallel) resamplings with the landings in Eureka.  Outputs the resampled upwelling from August start months to csv_data and pickle_data as well as visualizations to the images folder:
+
+1. upwell_resampled.csv
+2. upwell_resampled.pkl
+3. upwell_resampled_lag4.csv
+4. upwell_resampled_lag4.pkl
+5. hot_cold_hist.png
+6. line_pdo_eureka.png
 
 * pdo_exploration.R
-explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
 
-* upwell_exploration.py:
-explores and visualizes cross correlation of upwelling index (at 42nd latitude) resamplings with the landings in Eureka. 
+Uses the pdo_resampled.csv data to explore and visualize cross correlation and lagplots of PDO resampling (from OCT start month) with the landings in Eureka. 
 
 * upwell_exploration.R
-explores and visualizes cross correlation of upwelling resamplings (at 42nd latitude) with the landings in Eureka. 
+Uses upwell_resampled.csv data to explore and visualize cross correlation and lagplots of upwelling resamplings (from APR start month) with the landings in Eureka. 
 
 ##images
 
 [many images from matplotlib, seaborn, and R plot outputs in the previous section]
 
+##csv_data
+
+* ports_monthly.csv
+* ports_seasonal.csv
+* areas_seasonal.csv
+* pdo_monthly.csv
+* pdo_resampled.csv
+* pdo_resampled_lag4.csv
+* upwell_monthly.csv
+* upwell_resampled.csv
+* upwell_resampled_lag4.csv
+ 
+##pickle_data
+
+* ports_monthly.pkl
+* ports_seasonal.pkl
+* areas_seasonal.pkl
+* pdo_monthly.pkl
+* pdo_resampled.pkl
+* pdo_resampled_lag4.pkl
+* upwell_monthly.pkl
+* upwell_resampled.pkl
+* upwell_resampled_lag4.pkl
+
+
 ##modeling
 
 * all_models.R:
-pits together 10 different varieties of time series models in an R script and compares resulting performance 
+
+Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
 
 * best_model.R:
-performs predictions for test set + 2015 season prediction
+Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
+*** This script is the ONLY one that produces a 2015 season prediction!***
 
 ###REPRODUCE THE RESULTS:
 
@@ -139,16 +209,18 @@ However, this isn't necessary as all the munged data have been pickled and writt
 To explore the data transformations necessary to acquire the research-driven insight that drove the modeling, run (in order):
 
 1. eda_seasonal
-2. **pdo_exploration.py
+2. pdo_exploration.py
 3. pdo_exploration.R
 4. upwell_exploration.py
 5. upwell_exploration.R
 
-Again, all the transformation are already written to csv for the modeling portion
+Again, all the transformation are already written to csv for the modeling portion.
 
 To see model generation, selection and final model performance:
+
 1. all_models.R
 2. best_model.R
+Script outputs:
 	* Model training fit standard error over time
 	* Histogram of out-of-sample forecast errors
 	* Plot of in and out of sample residuals
@@ -165,11 +237,12 @@ forecast
 ```
 
 ###THANK YOU!
-	* Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
-	* Tammy Lee - Director, Galvanize
-	* Clayton Schupp -  Director, Galvanize
-	* Adam, Scott - Commercial Fishermen, CA & OR
-	* Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
+
+* Christy Juhasz - Environmental Scientist, California Dept. of Fish and Wildlife
+* Tammy Lee - Director, Galvanize
+* Clayton Schupp -  Director, Galvanize
+* Adam, Scott - Commercial Fishermen, CA & OR
+* Anna, Joel, Vikas, Sam, Nanfang - Students of Galvanize DSI's Cohort 10
 
 ###IN CASE YOU WERE WONDERING:
 
