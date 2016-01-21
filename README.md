@@ -88,8 +88,8 @@ It can also be viewed as [html](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/
 
 Reads the respective csv and excel files in the raw_data folder representing different time windows of landings data (1927-2002 and 2002-2014 respectively), and merges them as one dataframe 'ports_monthly' and writes them to pickle and csv objects in the pickle_data and csv_data files, respectively:
 
- * ports_monthly.pkl
- * ports_monthly.csv
+1. ports_monthly.pkl
+2. ports_monthly.csv
 
 * consolidate_monthly.py
 
