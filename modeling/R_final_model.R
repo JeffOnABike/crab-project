@@ -47,7 +47,6 @@ for (end_yr in 1964:2014) {
         se_val = sqrt(arima_ex2_aicc$sigma2)
 
         # append test results to vectors
-
         year_vec = c(year_vec, test_yr)
         pred_vec = c(pred_vec, arima_ex2_aicc.forecast) 
         se_vec = c(se_vec, se_val)
@@ -67,11 +66,10 @@ pred_ts = ts(pred_vec, start = year_vec[1], end = tail(year_vec, n = 1))
 se_ts = ts(se_vec, start = year_vec[1], end = tail(year_vec, n = 1))
 oos_err_ts = window(real_ts - pred_ts, end = 2014)
 
-
 # plot standard errors of training model fit over time
 ts.plot(se_ts, type = 'p', main = 'Model Standard Error over Time', ylab = 'S.E. (Mlbs.)')
 
-## From little book of R Time Series:
+## Code for forecast error from little book of R Time Series:
 plotForecastErrors <- function(forecasterrors)
 {
         # make a histogram of the forecast errors:
@@ -95,12 +93,15 @@ plotForecastErrors <- function(forecasterrors)
         points(myhist$mids, myhist$density, type="l", col="blue", lwd=2)
 }
 
+# plot out-of-sample errors as histogram
 plotForecastErrors(oos_err_ts)
 
+# summary and diagnostics on in-sample residuals
 summary(arima_ex2_aicc)
 ts.plot(arima_ex2_aicc$residuals, type = 'p', main = 'In-sample Residuals', xlab = 'Season', ylab = '(millions lbs)')
 acf(arima_ex2_aicc$residuals, main = 'Auto Correlation of In-Sample Residuals')
 
+# diagnostics on out-of-sample residuals
 ts.plot(oos_err_ts, type = 'p', main = 'Out of Sample Residuals', ylab = '(million lbs.)')
 acf(oos_err_ts, main = 'Auto Correlation of ARIMA w/ex OOS Errors')
 Box.test(oos_err_ts, type="Ljung-Box")
@@ -115,7 +116,7 @@ R_2
 print('Mean Absolute Error out of sample residuals:')
 mean(abs(oos_err_ts))
 
-# plot predictions vs. actual landings
+# plot predictions vs. actual landings including 2015 prediction:
 ylab = 'Landings (million lbs.)'
 xlab = 'Season'
 main = 'Model Predictions vs. Actual'

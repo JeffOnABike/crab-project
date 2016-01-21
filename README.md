@@ -22,6 +22,7 @@ The following visualization demonstrates the negative correlation found between 
 ![image](images/pdo_lag4.png)
 
 Upwelling Index measurements were also cross-correlated in a similar manner, and peak correlation was found when resampled from APR 3 years prior. Observe the correlations between landings and resampled & lagged upwelling (in upper right of subplots) peak at 3 years.
+
 ![image](images/LagPlot_Upwell_Eureka.png)
 
 One can reason that a negative PDO and a high upwelling index are highly favorable for Dungeness crab population success in their early development phases, thus resulting in higher landings in the season 3-4 years later.
@@ -69,15 +70,15 @@ This is the ARIMAX model fit that we have predicting for the 2015 season, which 
 
 ##Conclusions
 
-Variance in observed landings in the Eureka area can be partially explained by an auto-fit ARIMA model that incorporates exogenous regressors. The most exciting insights from the data exploration was being able to pinpoint the time windows in which the regressors had the most impact, and furthermore to confirm that they aligned with critical stages for survival in the life cycle of Dungeness crabs. From the modeling portion, it was most interesting to see that an ARIMA model fit with these regressors was a synergy of ARIMA and linear regression models, outperforming both of them in the evaluation phase.
+Variance in observed landings in the Eureka area can be partially explained by an auto-fit ARIMAX model that incorporates exogenous regressors. The most exciting insights from the data exploration was being able to pinpoint the time windows in which the regressors had the most impact, and furthermore to confirm that they aligned with critical stages for survival in the life cycle of Dungeness crabs. From the modeling portion, it was most interesting to see that an ARIMAX model fit with these regressors was a synergy of ARIMA and linear regression models, outperforming both of them in the evaluation phase.
 
 #REPO GUIDE
 
 ###raw_data:
-* Dcrab_Month&Port_2002-2015.xlsx<br>
+**Dcrab_Month&Port_2002-2015.xlsx**
 Excel file with landings organized by port and month from 2002-2014. This data was generously provided by Christy Juhasz of the California Department of Fish and Wildlife, who have been tracking landings since 2002.
 
-* erdCAMarCatSM_fb3f_4d76_6e3d.csv<br> 
+**erdCAMarCatSM_fb3f_4d76_6e3d.csv**
 csv file of landings from 1928 - 2002, downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html) with the query:<br>
 Fish = 'Crab, Dungeness'<br>
 Time: '1928-01-16' - '2002-12-16T00:00:00Z'<br>
@@ -172,42 +173,44 @@ It can also be viewed as [html](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/
 **all_models.R**: Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
 
 **best_model.R**: Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
-*** This script is the ONLY one that produces a 2015 season prediction!***
+***This script is the ONLY one that produces a 2015 season prediction!***
 
 ###REPRODUCE THE RESULTS:
 
+IMPORTANT: **Run all scripts from the root crab-project directory!**
+
 To replicate the data collection and cleansing, run the scripts in data_processing in the order:
 
-1. merge_landings
-2. consolidate_monthly
-3. scrape_pdo
-4. scrape_upwell
+1. merge_landings.py
+2. consolidate_montly.py
+3. scrape_pdo.py
+4. scrape_upwell.py
 
 However, this isn't necessary as all the munged data have been pickled and written to csv in the respective directories.
 
 To explore the data transformations necessary to acquire the research-driven insight that drove the modeling, run (in order):
 
-1. eda_seasonal
+1. eda_seasonal.py
 2. pdo_exploration.py
-3. pdo_exploration.R
+3. R_pdo_exploration.R
 4. upwell_exploration.py
-5. upwell_exploration.R
+5. R_upwell_exploration.R
 
 Again, all the transformation are already written to csv for the modeling portion.
 
 To see model generation, selection and final model performance*:
 
-1. all_models.R
-2. best_model.R
+1. R_all_models.R
+2. R_best_model.R
 Script outputs:
-	* Model training fit standard error over time
-	* Histogram of out-of-sample forecast errors
-	* Plot of in and out of sample residuals
-	* ACF of in and out of sample residuals
-	* Box-Ljung test results for out of sample residuals: p = 0.30
-	* R^2: 0.38
-	* MAE out of sample residuals: 3.45
-	* Plot: Model predictions vs. Actual including 2015 prediction 
+	* Plot window: Model training fit standard error over time
+	* Plot window: Histogram of out-of-sample forecast errors
+	* Plot window: Scatter of in and out of sample residuals
+	* Plot window: ACF of in and out of sample residuals
+	* Console: Box-Ljung test results for out of sample residuals: p = 0.30
+	* Console: R^2: 0.38
+	* Console: MAE out of sample residuals: 3.45
+	* Plot window: Model predictions vs. Actual including 2015 prediction 
 
 *It may be necessary to install the following packages:
 ```

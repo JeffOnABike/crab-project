@@ -1,6 +1,5 @@
 # pdo exploration in R
 library(astsa)
-library(stats)
 
 # Load pdo resampled by season
 pdo_resampled <- read.csv('csv_data/pdo_resampled.csv', header = FALSE)
@@ -18,13 +17,17 @@ eureka_start <- eureka_years[1]
 eureka_end <- eureka_years[length(eureka_years)]
 eureka_ts <- ts(eureka_data, start = eureka_start, end = eureka_end, frequency = 1)
 
-# align eureka and upwell timeseries to start and end on same season
-window_start = max(pdo_resampled_start, eureka_start)
-window_end = min(pdo_resampled_end, eureka_end)
+# align eureka and pdo timeseries to start and end on same season
+window_start = max(pdo_start, eureka_start)
+window_end = min(pdo_end, eureka_end)
 pdo <- window(pdo_ts, start = window_start, end = window_end)
 eureka <- window(eureka_ts, start = window_start, end = window_end)
 
-# want to save this!
+# visualize cross correlation and lagplots
 par(mfrow = c(1,1))
 ccf(c(pdo), c(eureka), main = "Cross Correlation: PDO(lagged) vs. Eureka")
 lag2.plot(c(pdo), c(eureka), max.lag = 5, smooth = TRUE)
+
+
+
+
