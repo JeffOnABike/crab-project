@@ -73,55 +73,42 @@ Variance in observed landings in the Eureka area can be partially explained by a
 #REPO GUIDE
 
 ###raw_data:
-1. Dcrab_Month&Port_2002-2015.xlsx
-
+* Dcrab_Month&Port_2002-2015.xlsx:
 Excel file with landings organized by port and month from 2002-2014. This data was generously provided by Christy Juhasz of the California Department of Fish and Wildlife, who have been tracking landings since 2002.
 
-2. erdCAMarCatSM_fb3f_4d76_6e3d.csv  
-
-CSV file of landings from 1928 - 2002, downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html) with the query: 
-Fish = 'Crab, Dungeness'
-Time: '1928-01-16' - '2002-12-16T00:00:00Z'
-Download as: '.csv'
+* erdCAMarCatSM_fb3f_4d76_6e3d.csv: csv file of landings from 1928 - 2002, downloaded from the [PFEL online](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.html) with the query:<br>
+Fish = 'Crab, Dungeness'<br>
+Time: '1928-01-16' - '2002-12-16T00:00:00Z'<br>
+Download as: '.csv'<br>
 It can also be viewed as [html](http://coastwatch.pfeg.noaa.gov/erddap/tabledap/erdCAMarCatSM.htmlTable?time,year,fish,port,landings&time%3E=1928-01-16&time%3C=2002-12-16T00:00:00Z&fish=%22Crab,%20Dungeness%22). 
 
 ###data_processing:
 
-1. merge_landings.py
-
-Reads the respective csv and excel files in the raw_data folder representing different time windows of landings data (1927-2002 and 2002-2014 respectively), and merges them as one dataframe 'ports_monthly' and writes them to pickle and csv objects in the pickle_data and csv_data files, respectively:
+**merge_landings.py**: Reads the respective csv and excel files in the raw_data folder representing different time windows of landings data (1927-2002 and 2002-2014 respectively), and merges them as one dataframe 'ports_monthly' and writes them to pickle and csv objects in the pickle_data and csv_data files, respectively:
 
 * ports_monthly.pkl
 * ports_monthly.csv
 
-2. consolidate_monthly.py
-
-Consolidates all monthly data from 'ports_monthly.pkl' into the 4 generalized port areas that have been consistently labeled over the past century: Eureka, San Francisco, Monterey, Santa Barbara (and drops ports Los Angeles and San Diego whihc have no bearing on this study). The script also aggregates by season which is assigned as the year it opens (traditionally in November). It writes these aggregated dataframes to csv_data and pickle_data as:
+**consolidate_monthly.py**: Consolidates all monthly data from 'ports_monthly.pkl' into the 4 generalized port areas that have been consistently labeled over the past century: Eureka, San Francisco, Monterey, Santa Barbara (and drops ports Los Angeles and San Diego whihc have no bearing on this study). The script also aggregates by season which is assigned as the year it opens (traditionally in November). It writes these aggregated dataframes to csv_data and pickle_data as:
 
 * ports_seasonal.csv
 * areas_seasonal.csv
 * ports_seasonal.pkl
 * areas_seasonal.pkl
 
-3. scrape_pdo.py
-
-Scrapes and pickles/writes to csv the PDO measurements provided by [JISAO](http://research.jisao.washington.edu/pdo/PDO.latest). Outputs to pickle_data and csv_data:
+**scrape_pdo.py**: Scrapes and pickles/writes to csv the PDO measurements provided by [JISAO](http://research.jisao.washington.edu/pdo/PDO.latest). Outputs to pickle_data and csv_data:
 
 * pdo_monthly.pkl
 * pdo_monthly.csv
 
-4. scrape_upwell.py
-
-Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from [NOAA data](http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upindex.mon). Outputs to pickle_data and csv_data:
+**scrape_upwell.py**: Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parallel from [NOAA data](http://www.pfeg.noaa.gov/products/PFELData/upwell/monthly/upindex.mon). Outputs to pickle_data and csv_data:
 
 * upwell_monthly.pkl
 * upwell_monthly.csv
 
 ##EDA_transformation:
 
-1. eda_seasonal.py
-
-Explores and visualizes trends in the landings data aggregated by season for 1945 on ('the crab pot era'). Creates the following visualizations in the plot window/outputs to the images folder:
+**eda_seasonal.py**: Explores and visualizes trends in the landings data aggregated by season for 1945 on ('the crab pot era'). Creates the following visualizations in the plot window/outputs to the images folder:
 
 * stacked_bar.png - Aggregated landings plotted by fishing season and port area
 * eureka_line.png - Aggregated landings plotted by fishing season for Eureka port area alone
@@ -129,19 +116,14 @@ Explores and visualizes trends in the landings data aggregated by season for 194
 * Area plot of seasonal proportions by port area
 * areas_boxplot.png - Distribution of seasonal landings by port area
 
-2. pdo_exploration.py
-
-Explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
-***this has one of the most instrumental functions in "crosscorrelate_pdo_seasonal" and "lag _samples" working in conjunction.*** Outputs the resampled pdo from OCT start month to csv_data and pickle_data:
+**pdo_exploration.py**: Explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. ***This has one of the most instrumental functions in "crosscorrelate_pdo_seasonal" and "lag _samples" working in conjunction.*** Outputs the resampled pdo from OCT start month to csv_data and pickle_data:
 
 * pdo_resampled.csv
 * pdo_resampled.pkl
 * pdo_resampled_lag4.csv
 * pdo_resampled_lag4.pkl
 
-3. upwell_exploration.py
-
-Explores and visualizes cross correlation of upwelling (at 42nd parallel) resamplings with the landings in Eureka.  Outputs the resampled upwelling from August start months to csv_data and pickle_data as well as visualizations to the images folder:
+**upwell_exploration.py**: Explores and visualizes cross correlation of upwelling (at 42nd parallel) resamplings with the landings in Eureka.  Outputs the resampled upwelling from August start months to csv_data and pickle_data as well as visualizations to the images folder:
 
 * upwell_resampled.csv
 * upwell_resampled.pkl
@@ -150,18 +132,15 @@ Explores and visualizes cross correlation of upwelling (at 42nd parallel) resamp
 * hot_cold_hist.png
 * line_pdo_eureka.png
 
-4. pdo_exploration.R
+**pdo_exploration.R**: Uses the pdo_resampled.csv data to explore and visualize cross correlation and lagplots of PDO resampling (from OCT start month) with the landings in Eureka. 
 
-Uses the pdo_resampled.csv data to explore and visualize cross correlation and lagplots of PDO resampling (from OCT start month) with the landings in Eureka. 
+**upwell_exploration.R**: Uses upwell_resampled.csv data to explore and visualize cross correlation and lagplots of upwelling resamplings (from APR start month) with the landings in Eureka. 
 
-5. upwell_exploration.R
-Uses upwell_resampled.csv data to explore and visualize cross correlation and lagplots of upwelling resamplings (from APR start month) with the landings in Eureka. 
-
-##images
+##images:
 
 [many images from matplotlib, seaborn, and R plot outputs in the previous section]
 
-##csv_data
+##csv_data:
 
 * ports_monthly.csv
 * ports_seasonal.csv
@@ -173,7 +152,7 @@ Uses upwell_resampled.csv data to explore and visualize cross correlation and la
 * upwell_resampled.csv
 * upwell_resampled_lag4.csv
  
-##pickle_data
+##pickle_data:
 
 * ports_monthly.pkl
 * ports_seasonal.pkl
@@ -186,16 +165,17 @@ Uses upwell_resampled.csv data to explore and visualize cross correlation and la
 * upwell_resampled_lag4.pkl
 
 
-##modeling
+##modeling:
 
-*all_models.R*: Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
+**all_models.R**: Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
 
-*best_model.R*: Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
+**best_model.R**: Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
 *** This script is the ONLY one that produces a 2015 season prediction!***
 
 ###REPRODUCE THE RESULTS:
 
 To replicate the data collection and cleansing, run the scripts in data_processing in the order:
+
 1. merge_landings
 2. consolidate_monthly
 3. scrape_pdo
