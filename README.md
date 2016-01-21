@@ -119,42 +119,42 @@ Scrapes and pickles/writes to csv the upwelling measurements at 42 and 39 parall
 
 ##EDA_transformation:
 
-* eda_seasonal.py
+1. eda_seasonal.py
 
 Explores and visualizes trends in the landings data aggregated by season for 1945 on ('the crab pot era'). Creates the following visualizations in the plot window/outputs to the images folder:
 
-1. stacked_bar.png - Aggregated landings plotted by fishing season and port area
-2. eureka_line.png - Aggregated landings plotted by fishing season for Eureka port area alone
-3. Histogram of all season landings totals in total across all ports
-4. Area plot of seasonal proportions by port area
-5. areas_boxplot.png - Distribution of seasonal landings by port area
+* stacked_bar.png - Aggregated landings plotted by fishing season and port area
+* eureka_line.png - Aggregated landings plotted by fishing season for Eureka port area alone
+* Histogram of all season landings totals in total across all ports
+* Area plot of seasonal proportions by port area
+* areas_boxplot.png - Distribution of seasonal landings by port area
 
-* pdo_exploration.py
+2. pdo_exploration.py
 
 Explores and visualizes cross correlation of PDO resamplings with the landings in Eureka. 
 ***this has one of the most instrumental functions in "crosscorrelate_pdo_seasonal" and "lag _samples" working in conjunction.*** Outputs the resampled pdo from OCT start month to csv_data and pickle_data:
 
-1. pdo_resampled.csv
-2. pdo_resampled.pkl
-3. pdo_resampled_lag4.csv
-4. pdo_resampled_lag4.pkl
+* pdo_resampled.csv
+* pdo_resampled.pkl
+* pdo_resampled_lag4.csv
+* pdo_resampled_lag4.pkl
 
-* upwell_exploration.py
+3. upwell_exploration.py
 
 Explores and visualizes cross correlation of upwelling (at 42nd parallel) resamplings with the landings in Eureka.  Outputs the resampled upwelling from August start months to csv_data and pickle_data as well as visualizations to the images folder:
 
-1. upwell_resampled.csv
-2. upwell_resampled.pkl
-3. upwell_resampled_lag4.csv
-4. upwell_resampled_lag4.pkl
-5. hot_cold_hist.png
-6. line_pdo_eureka.png
+* upwell_resampled.csv
+* upwell_resampled.pkl
+* upwell_resampled_lag4.csv
+* upwell_resampled_lag4.pkl
+* hot_cold_hist.png
+* line_pdo_eureka.png
 
-* pdo_exploration.R
+4. pdo_exploration.R
 
 Uses the pdo_resampled.csv data to explore and visualize cross correlation and lagplots of PDO resampling (from OCT start month) with the landings in Eureka. 
 
-* upwell_exploration.R
+5. upwell_exploration.R
 Uses upwell_resampled.csv data to explore and visualize cross correlation and lagplots of upwelling resamplings (from APR start month) with the landings in Eureka. 
 
 ##images
@@ -188,11 +188,11 @@ Uses upwell_resampled.csv data to explore and visualize cross correlation and la
 
 ##modeling
 
-* all_models.R:
+1. all_models.R:
 
 Pits together 10 different varieties of time series models in an R script and compares resulting performance. 
 
-* best_model.R:
+2. best_model.R:
 Performs predictions for test set with the ARIMAX model and performs diagnostics such as evaluating the normality of residuals and the autocorrelations with the Box-Ljung test.
 *** This script is the ONLY one that produces a 2015 season prediction!***
 
